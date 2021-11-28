@@ -1,0 +1,227 @@
+{% extends 'main.html' %}
+{%  load crispy_forms_tags %}
+
+{%  block styles %}
+
+
+
+@media only screen and (max-width: 700px) {
+  .responsive {
+    width: 49.99999%;
+    margin: 6px 0;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .responsive {
+    width: 100%;
+  }
+}
+
+{%  endblock styles %}
+
+{% block content %}
+<h2>Your Galleries</h2>
+<div class="row no-gutters">
+            {% for category in categories  %}
+            <div class="col-md-4" id="id-{{category.id}}">
+                    <div class="card m-3">
+                        <a href="{% url 'picture_gallery' category.id %}">
+                      {% if category.mediaimage_set.all.0.image %}
+                      <img src="{{ category.mediaimage_set.all.0.image.url }}" class="card-img-top" alt="https://images.pexels.com/photos/963486/pexels-photo-963486.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500">
+                      {% else %}
+                      <img src="https://images.theconversation.com/files/139727/original/image-20160929-27030-3ecwqw.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1200&h=900.0&fit=crop" class="card-img-top" alt="">
+                       {% endif %}
+                        </a>
+                        <div class="card-body" style="position:relative">
+                                      <div class="dropdown">
+                                          <button class="btn" type="button" id="dropdownMenuButton1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position:absolute;right:-20px;top:-10px">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                          </button>
+                                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                            <a class="dropdown-item edit"  data-catid="{{ category.id }}">Rename category</a>
+                                            <a class="dropdown-item des"  data-catid="{{ category.id }}">Edit Description</a>
+                                            <a class="dropdown-item delete"  data-catid="{{ category.id }}">Delete category</a>
+
+                                          </div>
+                                      </div>
+                            <h5 class="card-title name-{{category.id}}">Name : {{ category.name }}</h5>
+                            <p class="card-text desc-{{category.id}}">Description : {{ category.description }}.</p>
+                            <p class="card-text"><small class="text-muted">Last updated {{ category.last_updated }}</small></p>
+                      </div>
+                    </div>
+
+
+                  <!-- Form -->
+                  <!-- Button trigger modal -->
+                  <button id='pop-up-{{ category.id }}' type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop-{{ category.id }}" hidden>
+                  </button>
+                  <!-- Modal -->
+                  <div class="modal fade" id="staticBackdrop-{{ category.id }}" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="staticBackdropLabel">Rename</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to permanently delete this ctegory?</p>
+                                            <div class="form-row category_name-{{ category.id }}" data-name="{{ category.name }}">
+                                                 <div class="form-group col-md-6" >
+                                                   <input type="text" name="name" value="" id="id_name-{{ category.id }}" autofocus>
+                                                 </div>
+                                            </div>
+
+                                            <div class="form-row category_description-{{ category.id }}" data-des="{{ category.description }}">
+                                               <div class="form-group col-md-12">
+                                                 <textarea id="id_des-{{ category.id }}" name="description" rows="4" cols="50" maxlength="200" ></textarea>
+                                               </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary clear" data-catid="{{category.id}}">Clear</button>
+                                                <button type="button" class="btn btn-primary" id="submit-{{category.id}}">Save</button>
+                                            </div>
+
+                                    </div>
+                              </div>
+                        </div>
+                  </div>
+            </div>
+  {%  if forloop.counter|divisibleby:"4" and not forloop.last %}
+</div> <!-- close the row -->
+  <div class="row"> <!-- Make a new row -->
+  {% endif %}
+  {%  endfor %}
+</div>
+
+
+
+
+
+<script>
+$(document).ready(function(){
+  $("input[type='search']").val("")
+  $(".edit").click(function(){
+        console.log($(this))
+        id = $(this).attr('data-catid')
+        $("#staticBackdrop-"+id).find(".modal-body p").hide();
+        $(".category_description-"+id).hide();
+        $(".category_name-"+id).show();
+        $("#staticBackdrop-"+id).find("h5").text("Rename");
+        $("#staticBackdrop-"+id).find(".modal-footer button").eq(0).show()
+        $("#staticBackdrop-"+id).find(".modal-footer button").eq(1).html("Save")
+        // myString.split(":") str.trim()
+        var name = $(".name-"+id).text()
+        var names = name.split(":")
+        var name = names[names.length - 1].trim()
+        $("#staticBackdrop-"+id).find("#id_name-"+id).val(name)
+        $("#pop-up-"+id).click();
+        clear(id)
+
+        $("#submit-"+id).click(function(){
+           if(!$("#id_name-"+id).val()){
+               $(".close").click()
+           }else{
+               send_data = {
+                    "name":$("#id_name-"+id).val(),
+                           }
+               ajax_call(id, send_data)
+           }
+        })
+
+
+  });
+
+  $(".des").click(function(){
+         id = $(this).attr('data-catid');
+         $("#staticBackdrop-"+id).find(".modal-body p").hide();
+         $(".category_name-"+id).hide();
+         $(".category_description-"+id).show();
+         $("#staticBackdrop-"+id).find(".modal-footer button").eq(0).show()
+         $("#staticBackdrop-"+id).find("h5").text("Description");
+         $("#staticBackdrop-"+id).find(".modal-footer button").eq(1).html("Save")
+         var des = $(".desc-"+id).text()
+         var dess = des.split(":")
+         var des = dess[dess.length - 1].trim()
+         $("#staticBackdrop-"+id).find("#id_des-"+id).val(des)
+         $("#pop-up-"+id).click();
+         clear(id)
+         $("#submit-"+id).click(function(){
+
+         if(!$("#id_des-"+id).val()){
+               $(".close").click()
+         }else{
+               send_data = {
+                 "description":$("#id_des-"+id).val(),
+                  }
+               ajax_call(id, send_data)
+               }
+         })
+
+ });
+
+  $(".delete").click(function(){
+        id = $(this).attr('data-catid')
+        $(".category_name-"+id).hide();
+        $(".category_description-"+id).hide();
+        $("#staticBackdrop-"+id).find("h5").text("Delete");
+        $("#staticBackdrop-"+id).find(".modal-body p").show();
+        $("#staticBackdrop-"+id).find(".modal-footer button").eq(0).hide()
+        $("#staticBackdrop-"+id).find(".modal-footer button").eq(1).html("Delete")
+        $("#pop-up-"+id).click();
+        $("#submit-"+id).click(function(){
+            send_data = {
+               "delete":"delete",
+                  }
+               ajax_call(id, send_data)
+         })
+
+  });
+
+  // Clear function
+  function clear(id){
+            $("#staticBackdrop-"+id).find(".clear").click(function(){
+            console.log("cleared")
+            $("input").val("");
+            $("textarea").val("")
+        })
+  }
+  // Call Ajax
+  function ajax_call(id, send_data){
+             url = "/MediaGallery" + "/update-category/"+ id +"/"
+             $.ajax({
+                       url:url,
+                       type:'get',
+                       data:send_data,
+                       success:function (data) {
+                       if(data.name ){
+                        $(".name-"+id).text("Name : "+data.name)
+                       }
+                       if(data.description){
+                        $(".desc-"+id).text("Description : "+data.description)
+                       }
+                       if(data.delete){
+                        $("#id-"+id).fadeOut()
+                       }
+
+                       $(".clear").click()
+                       $(".close").click()
+                       console.log(data.status)
+                       },
+                })
+
+  }
+
+});
+</script>
+
+{% endblock content %}
+
+    $("#staticBackdrop-"+$(this).attr('data-catid')).find(".clear").click(function(){
+      console.log($(this).attr('data-catid')) //
+      $(".form-"+$(this).attr('data-catid')).reset();
+
+      })

@@ -1,0 +1,117 @@
+{% extends 'main.html' %}
+
+{%  block styles %}
+ .bootstrap-datetimepicker-widget.dropdown-menu {
+        width: auto;
+    }
+
+    .timepicker-picker table td a span,
+    .timepicker-picker table td,
+    .timepicker-picker table td span {
+        height: 1px !important;
+        line-height: 2px !important;
+        vertical-align: middle;
+        width: 5px !important;
+        padding: 0px !important;
+        color : red !important;
+
+    }
+
+{%  endblock styles %}
+
+{% block content %}
+<form action="{% url 'test' %}">
+
+    <div style="position: relative">
+    <label for="datetimepicker"><strong>DateTime</strong></label>
+    <input name='datetime' id="datetimepicker" type="text" class="form-control" autocomplete="off" placeholder="dd-mm-yyyy">
+    </div>
+
+    <br>
+    <br>
+    <div style="position: relative">
+    <label for="datepicker"><strong>Date</strong></label>
+    <input id='datepicker' type='text' name='date'/>
+    </div>
+    <br>
+    <br>
+    <div style="position: relative">
+    <label for="timepicker"><strong>Time</strong></label>
+    <input id='timepicker' type='text' name='time' autocomplete="off"  value="06:30 PM" />
+    </div>
+    <br>
+    <label for="daterange"><strong>Date range</strong></label>
+    <input id='daterange' type="text" name="daterange" value="01/01/2018 - 01/15/2018" />
+
+    <br>
+    <label for="bs-datepicker">Bootstrap Datetime picker </label><br>
+    <input id="bs-datepicker" type="text" name="date" autocomplete="off" data-date-format="mm-dd-yyyy" class="form-control"
+    >
+
+
+    <div class="d-flex justify-content-start">
+    <button type="submit" >Save</button>
+    </div>
+
+</form>
+
+
+
+
+<script>
+
+        $(document).ready(function() {
+
+        // DateTimePicker
+         $('#datetimepicker').datetimepicker({
+         format: 'DD/MM/YYYY hh:mm a',
+         daysOfWeekDisabled:[0,6],
+         calendarWeeks:true,
+         icons:{
+         today:'fa fa-snowflake-o',
+         },
+     // Show the "Today" button in the icon toolbar
+        showTodayButton:true,
+         });
+
+
+        // DatePicker
+         $('#datepicker').datetimepicker({
+          format: 'DD/MM/YYYY',
+          //maxDate takes only date object
+          showTodayButton:true,
+         });
+
+        // TimePicker
+         $('#timepicker').datetimepicker({
+          format: 'hh:mm a',
+          //stepping: 20,
+          showTodayButton:true,
+         });
+
+
+        $('input[name="daterange"]').daterangepicker({
+            "startDate":new Date("01/02/2021"),
+            // Takes string or new Date() or moment(
+            "singleDatePicker": true,
+           });
+
+
+          // Bootstrap DatePicker
+        $('#bs-datepicker').datepicker({
+         daysOfWeekDisabled:[0,6],
+         //format:'dd/mm/yyyy',
+
+         });
+
+
+
+       });
+
+
+
+
+
+
+    </script>
+{% endblock content %}

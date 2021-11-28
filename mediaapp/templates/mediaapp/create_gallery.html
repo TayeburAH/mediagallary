@@ -1,0 +1,126 @@
+{% extends 'main.html' %}
+{%  load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block styles %}
+    #div_id_birth_year{
+    display:inline
+    }
+    #id_birth_year_day{
+    width:200px;
+    }
+    #id_birth_year_month{
+    width:200px;
+    }
+    #id_birth_year_year{
+    width:200px;
+    }
+
+{% endblock styles %}
+
+{% block content %}
+
+
+<div class="d-flex justify-content-center m-5">
+
+<form action="{% url 'create_gallery' %}" method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <h3 class="text-center">Add photos</h3>
+
+          <div class="row">
+              <div class="col-12">
+                     {{ form.check|as_crispy_field }}
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-12">
+                  {{ form.name|as_crispy_field }}
+              </div>
+          </div>
+          <div class="row selector" hidden>
+              <div class="col-12" >
+                {{ form.selected_category|as_crispy_field }}
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-12">
+                {{ form.description|as_crispy_field }}
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-12">
+                {{ form.image|as_crispy_field }}
+              </div>
+          </div>
+
+
+    <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-success">Save</button>
+    </div>
+
+
+    {% for message in messages %}
+    <p class="text-center">  {{ message }} </p>
+    {% endfor %}
+
+ </form>
+</div>
+
+<script>
+
+$(document).ready(function () {
+        $("input[type='search']").val("")
+/*
+        $('#id_check_1').removeClass("form-check-input")
+        $('#id_check_1').parent().removeClass("form-check")
+        $('#id_check_1').siblings("label").removeClass("form-check-label")
+
+        $('#id_check_1').parent().addClass("custom-control custom-switch")
+        $('#id_check_1').addClass("custom-control-input")
+        $('#id_check_1').siblings("label").addClass("custom-control-label")
+*/
+
+
+       if ( $('#id_check_1').filter(':checked').val() ==='selected' ){
+       $('#div_id_name').hide()
+       $('#div_id_description').hide()
+       $('.selector').prop("hidden", false)
+       }
+
+      $('#id_check_1').change(function () {
+           console.log($(this).filter(':checked').val())
+              if ( $(this).filter(':checked').val() ==='selected'  ){
+                   console.log('checked')
+                   $('#div_id_name').hide()
+                   $('#div_id_description').hide()
+                   $('.selector').removeAttr("hidden")
+                   // $('.selector').prop("hidden", false); also works
+
+              }
+
+              if ( $(this).filter(':checked').val() == undefined  ){
+                   console.log('not checked')
+                   $('.selector').prop("hidden", true);
+                   $('#div_id_description').show()
+                   $('#div_id_name').show()
+               }
+
+        });
+
+        $("select").change(function () {
+                     var x = $(this).find(':selected').val()
+                      console.log(x)
+              });
+
+
+
+});
+
+</script>
+{% endblock content %}
+
+
+
+
